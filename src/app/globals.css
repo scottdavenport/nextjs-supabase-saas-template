@@ -1,0 +1,159 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Border Radius */
+  --radius: 0.5rem;
+  
+  /* Light Mode - Linear inspired with health aesthetic */
+  --background: 0 0% 100%; /* #FFFFFF */
+  --foreground: 240 10% 3.9%; /* Near black for text */
+  
+  --card: 0 0% 100%; /* White cards */
+  --card-foreground: 240 10% 3.9%;
+  
+  --popover: 0 0% 100%;
+  --popover-foreground: 240 10% 3.9%;
+  
+  /* Primary - Blue accent for health/action */
+  --primary: 217.2 91.2% 59.8%; /* #3B82F6 - blue-500 */
+  --primary-foreground: 0 0% 100%;
+  
+  /* Secondary - Subtle gray backgrounds */
+  --secondary: 240 4.8% 95.9%; /* Very light gray */
+  --secondary-foreground: 240 5.9% 10%;
+  
+  /* Muted - For less important text/backgrounds */
+  --muted: 240 4.8% 95.9%;
+  --muted-foreground: 240 3.8% 46.1%;
+  
+  /* Accent - Subtle highlights */
+  --accent: 240 4.8% 95.9%;
+  --accent-foreground: 240 5.9% 10%;
+  
+  /* Destructive - Error states */
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 100%;
+  
+  /* Borders and inputs */
+  --border: 240 5.9% 90%; /* Subtle border */
+  --input: 240 5.9% 90%;
+  --ring: 217.2 91.2% 59.8%; /* Blue focus ring */
+  
+  /* Sidebar specific */
+  --sidebar-background: 0 0% 100%;
+  --sidebar-foreground: 240 5.3% 26.1%;
+  --sidebar-border: 240 5.9% 90%;
+  --sidebar-accent: 217.2 91.2% 59.8%;
+  --sidebar-accent-foreground: 0 0% 100%;
+}
+
+.dark {
+  /* Dark Mode - Deep dark with elevated surfaces */
+  --background: 240 10% 3.9%; /* #0B0B0F - Deep dark */
+  --foreground: 0 0% 98%; /* Near white for text */
+  
+  --card: 240 10% 7%; /* Elevated surface */
+  --card-foreground: 0 0% 98%;
+  
+  --popover: 240 10% 7%;
+  --popover-foreground: 0 0% 98%;
+  
+  /* Primary - Blue accent (same as light) */
+  --primary: 217.2 91.2% 59.8%; /* #3B82F6 */
+  --primary-foreground: 0 0% 100%;
+  
+  /* Secondary - Slightly elevated */
+  --secondary: 240 3.7% 15.9%;
+  --secondary-foreground: 0 0% 98%;
+  
+  /* Muted */
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  
+  /* Accent */
+  --accent: 240 3.7% 15.9%;
+  --accent-foreground: 0 0% 98%;
+  
+  /* Destructive */
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  
+  /* Borders and inputs */
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  --ring: 217.2 91.2% 59.8%;
+  
+  /* Sidebar specific */
+  --sidebar-background: 240 10% 5%;
+  --sidebar-foreground: 240 5% 84.9%;
+  --sidebar-border: 240 3.7% 15.9%;
+  --sidebar-accent: 217.2 91.2% 59.8%;
+  --sidebar-accent-foreground: 0 0% 100%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  /* Smooth theme transitions */
+  * {
+    transition-property: background-color, border-color, color, fill, stroke;
+    transition-timing-function: ease-in-out;
+    transition-duration: 200ms;
+  }
+  
+  /* Prevent transition on theme change for specific elements */
+  html {
+    transition: none !important;
+  }
+}
+
+@layer utilities {
+  /* Typography utilities */
+  .text-metric {
+    font-family: var(--font-space-grotesk);
+    font-feature-settings: "tnum" 1;
+  }
+  
+  /* Sidebar utilities */
+  .sidebar-nav-item {
+    @apply flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all;
+    @apply text-sidebar-foreground hover:bg-accent hover:text-accent-foreground;
+  }
+  
+  .sidebar-nav-item-active {
+    @apply bg-accent text-accent-foreground border-l-2 border-sidebar-accent;
+  }
+
+  /* Enhanced hover states */
+  .hover-lift {
+    @apply transition-all duration-200 ease-in-out hover:shadow-lg hover:-translate-y-0.5;
+  }
+
+  .hover-glow {
+    @apply transition-all duration-200 ease-in-out hover:shadow-lg hover:shadow-primary/20;
+  }
+
+  /* Focus utilities */
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  }
+
+  /* Button enhancements */
+  .btn-hover {
+    @apply transition-all duration-150 ease-in-out hover:scale-[1.02] active:scale-[0.98];
+  }
+
+  /* Card enhancements */
+  .card-interactive {
+    @apply transition-all duration-200 ease-in-out hover:shadow-md hover:border-primary/50 cursor-pointer;
+  }
+}

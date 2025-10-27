@@ -1,0 +1,321 @@
+# Next.js + Supabase SaaS Template - Cursor Rules
+
+## Project Overview
+This is a production-ready SaaS template built with Next.js 16, Supabase, and modern tooling. It provides authentication, database management, and a solid foundation for building SaaS applications.
+
+## Tech Stack & Architecture
+
+### Core Framework
+- **Next.js 16** with App Router, TypeScript, Tailwind CSS
+- **Package Manager**: pnpm (via Corepack)
+- **UI Library**: shadcn/ui with Radix primitives
+- **Database**: Supabase (Postgres + Auth + Storage + RLS)
+- **Workers/Jobs**: Inngest for async processing
+- **Validation**: Zod schemas
+- **Monitoring**: Sentry for error tracking
+- **Analytics**: Vercel Analytics
+
+### Authentication & Security
+- **Supabase Auth** with RLS (Row Level Security) enforced everywhere
+- **OAuth Providers**: Email/password + Google + Apple (configurable)
+- **Key Model**: Using Supabase key structure:
+  - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` for client/browser
+  - `SUPABASE_SECRET_KEY` for server/worker operations
+- **Privacy by Design**: Minimal PII, encrypted tokens, RLS policies
+
+### File Organization
+```
+src/
+├── app/
+│   ├── (marketing)/          # Public pages (login, signup, landing)
+│   ├── (protected)/          # Authenticated app area
+│   └── api/                  # API routes
+├── components/
+│   ├── ui/                   # shadcn/ui components
+│   ├── auth/                 # Authentication components
+│   └── settings/             # Settings/profile components
+├── lib/
+│   ├── supabase/             # Supabase client factories
+│   ├── auth/                 # Auth utilities
+│   └── utils.ts              # Shared utilities
+└── worker/
+    ├── inngest.ts            # Inngest client
+    └── jobs/                 # Inngest job functions
+```
+
+## Template Configuration
+
+### Feature Management
+The template uses `template.config.js` to manage features:
+- **Authentication**: Email/password, Google OAuth, Apple OAuth
+- **Integrations**: Example OAuth, file upload
+- **Monitoring**: Sentry, Vercel Analytics
+- **Examples**: Chat messages, AI requests, external accounts
+
+### Customization Points
+- App name, description, and branding
+- Database table prefixes
+- Feature toggles
+- Environment variables
+
+## Git Workflow & Branching Strategy
+
+### Branch Naming Convention
+- `feat/<feature-name>` - Feature development
+- `fix/<issue>` - Bug fixes
+- `docs/<topic>` - Documentation updates
+- `template/<change>` - Template-specific changes
+
+### PR Process
+1. Create feature branch from `main`
+2. Implement changes following coding standards
+3. Test locally and on preview deployment
+4. Create PR with comprehensive description
+5. Self-review and merge after verification
+
+### Commit Conventions
+- Use conventional commits: `feat:`, `fix:`, `docs:`, `refactor:`, `test:`
+- Include feature name in commit messages: `feat(auth): implement Google OAuth sign-in`
+- Reference PR numbers when applicable
+
+## Coding Standards
+
+### TypeScript
+- Use strict mode, no `any` types
+- Prefer interfaces over types for object shapes
+- Use Zod for runtime validation
+- Export types from dedicated files when shared
+
+### React/Next.js
+- Use Server Components by default, Client Components only when needed
+- Prefer `async` Server Components over `useEffect` for data fetching
+- Use proper error boundaries and loading states
+- Follow Next.js App Router patterns
+
+### Database & Supabase
+- Always use RLS policies (never disable them)
+- Use proper client types: `createPublicServerClient()` for user operations, `createAdminServerClient()` for webhooks
+- Encrypt sensitive data (tokens) before storing
+- Use migrations for all schema changes
+
+#### Supabase Client Usage Patterns
+- **Client-side**: Use `createBrowserSupabaseClient()` for user interactions
+- **Server-side**: Use `createPublicServerClient()` for user operations (with cookies)
+- **Admin operations**: Use `createAdminServerClient()` for webhooks and system operations
+- **Middleware**: Use `createPublicServerClient()` with cookies for route protection
+
+#### Database Trigger Patterns
+- **User Creation**: Use `handle_new_user()` trigger to create profiles automatically
+- **Schema References**: Always use explicit schema references (`public.profiles` not `profiles`)
+- **RLS for System Users**: Create specific RLS policies for `supabase_auth_admin` role
+- **Trigger Security**: Use `SECURITY DEFINER` for trigger functions with minimal permissions
+- **OAuth Email Handling**: Always create profiles even when email is NULL (use fallback pattern)
+- **Consistent State**: Ensure every authenticated user has a corresponding profile
+
+#### RLS Policy Patterns
+- **User Data Access**: `id = auth.uid()` for user-specific data
+- **System User Access**: Create specific policies for `supabase_auth_admin` role
+- **Minimal Permissions**: System users should only have required permissions (e.g., INSERT only)
+- **Policy Testing**: Always verify policies prevent cross-user data access
+
+### API Design
+- Use RESTful patterns for CRUD operations
+- Implement proper error handling and status codes
+- Use Zod for request/response validation
+- Stream responses for real-time features
+
+## Key Patterns
+
+### Authentication Flow
+1. User signs up/in via Supabase Auth
+2. `handle_new_user()` trigger creates profile
+3. Middleware protects routes using `createPublicServerClient()`
+4. Client components use `createBrowserSupabaseClient()`
+
+#### Authentication Implementation Patterns
+- **Sign-up Flow**: Email confirmation required, no immediate redirect
+- **Sign-in Flow**: Redirect to dashboard on success
+- **OAuth Flow**: Automatic redirect after provider authentication
+- **Error Handling**: Use toast notifications for user feedback
+- **Loading States**: Disable buttons during authentication operations
+- **Form Validation**: Use proper TypeScript types for form events
+
+#### Middleware Protection Patterns
+- **Protected Routes**: Array of routes that require authentication
+- **Matcher Configuration**: Exclude API routes and auth callbacks
+- **Redirect Logic**: Redirect unauthenticated users to login
+- **User Verification**: Use `getCurrentUser()` with fallback to auth.getUser()
+
+#### Database Authentication Patterns
+- **Profile Creation**: Automatic via database trigger on user creation
+- **Fallback Logic**: Handle cases where profile doesn't exist yet
+- **User Data Access**: Always check authentication before database operations
+- **Session Management**: Use Supabase's built-in session handling
+
+### Data Integration Pattern
+1. Webhook receives data from external service
+2. Validates webhook signature
+3. Enqueues Inngest job for processing
+4. Job decrypts tokens, fetches full data
+5. Stores in database with RLS policies
+
+### AI Integration Pattern
+1. User sends message via chat UI
+2. Fetch recent user data and context
+3. Build context with user profile and data
+4. Stream response from AI provider
+5. Store message and AI request for audit
+
+## Environment Variables
+Required in `.env.local`:
+```
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+SUPABASE_SECRET_KEY=
+```
+
+Optional (based on features enabled):
+```
+SENTRY_AUTH_TOKEN=
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+APPLE_CLIENT_ID=
+APPLE_CLIENT_SECRET=
+INNGEST_SIGNING_KEY=
+OPENROUTER_API_KEY=
+```
+
+## Development Workflow
+1. Always work on feature branches
+2. Test locally before creating PR
+3. Use Supabase CLI for database operations
+4. Test on Vercel preview deployments before merging
+5. Verify RLS policies work correctly
+6. Document any new patterns
+7. Use GitHub CLI (`gh`) to create PRs automatically
+8. Include comprehensive PR descriptions
+9. Wait for deployment testing completion
+
+## Security Principles
+- RLS enforced on all tables
+- Encrypt sensitive data (OAuth tokens)
+- Validate all inputs with Zod
+- Use proper CORS and CSP headers
+- Never expose secrets to client
+- Audit all database access patterns
+
+### Authentication Security Patterns
+- **System User Permissions**: Minimal required permissions for `supabase_auth_admin`
+- **RLS Policy Design**: Users can only access their own data (`id = auth.uid()`)
+- **Trigger Security**: Use `SECURITY DEFINER` with proper scope and permissions
+- **Schema Isolation**: Explicit schema references prevent confusion attacks
+- **Permission Auditing**: Regularly verify RLS policies and system user permissions
+
+### Database Security Checklist
+- ✅ All tables have RLS enabled (`ALTER TABLE table_name ENABLE ROW LEVEL SECURITY`)
+- ✅ User-specific policies use `id = auth.uid()` pattern
+- ✅ System user policies are minimal and specific
+- ✅ Trigger functions use explicit schema references
+- ✅ No privilege escalation vulnerabilities
+- ✅ Cross-user data access prevented by RLS
+
+## Performance Considerations
+- Use Supabase indexes on frequently queried fields
+- Implement proper caching strategies
+- Stream large responses (chat, data exports)
+- Use Inngest for heavy processing
+- Monitor with Sentry and Vercel Analytics
+
+## Testing Strategy
+- Manual testing on preview deployments
+- Verify RLS policies prevent cross-user data access
+- Test OAuth flows end-to-end
+- Validate webhook signatures
+- Check error handling and edge cases
+
+### Authentication Testing Checklist
+- ✅ Email/password signup with confirmation flow
+- ✅ Email/password signin with redirect to dashboard
+- ✅ Google OAuth signin flow (if enabled)
+- ✅ Apple OAuth signin flow (if enabled)
+- ✅ Protected routes redirect unauthenticated users
+- ✅ Database triggers create user profiles automatically
+- ✅ RLS policies prevent cross-user data access
+- ✅ System user can only perform required operations
+- ✅ Error handling works for all authentication methods
+- ✅ Loading states prevent double submissions
+
+## Template Customization
+
+### Adding New Features
+1. **Database Tables**: Add migrations in `supabase/migrations/`
+2. **API Routes**: Create endpoints in `src/app/api/`
+3. **Components**: Build UI in `src/components/`
+4. **Pages**: Add routes in `src/app/`
+
+### Removing Example Code
+```bash
+# Remove example code after setup
+pnpm cleanup:examples
+```
+
+### Configuration Updates
+- Edit `template.config.js` to modify features
+- Update `env.example` for new environment variables
+- Modify scripts in `scripts/` directory
+
+## Common Issues & Debugging
+
+### Authentication Issues
+- **500 Error on Signup**: Check RLS policies for `supabase_auth_admin` role
+- **Profile Not Created**: Verify trigger function uses explicit schema references
+- **OAuth Redirect Issues**: Check redirect URLs in Supabase dashboard
+- **Middleware Loops**: Ensure matcher excludes auth callback routes
+- **User Not Found**: Use fallback to `auth.getUser()` in `getCurrentUser()`
+- **OAuth Users Without Email**: Trigger should create profiles with fallback email pattern
+- **Inconsistent State**: Every auth.users entry must have corresponding profiles entry
+
+### Database Issues
+- **RLS Policy Errors**: Check if system user has required permissions
+- **Trigger Failures**: Verify function uses `public.schema` references
+- **Permission Denied**: Ensure proper RLS policies for all roles
+- **Schema Not Found**: Use explicit schema references in all queries
+- **Cross-User Data Access**: Test RLS policies prevent data leakage
+
+### Debugging Commands
+```bash
+# Check RLS policies
+SELECT schemaname, tablename, policyname, roles, cmd FROM pg_policies WHERE tablename = 'profiles';
+
+# Verify trigger function
+SELECT prosrc FROM pg_proc WHERE proname = 'handle_new_user';
+
+# Check user permissions
+SELECT * FROM auth.users WHERE email = 'user@example.com';
+
+# Test RLS policies
+SELECT * FROM public.profiles; -- Should only show current user's data
+```
+
+## Deployment
+- Vercel for frontend hosting
+- Supabase Branching for database previews
+- GitHub Actions for CI/CD
+- Environment-specific configurations
+- Automatic preview deployments on PRs
+
+## Template Maintenance
+
+### Updating the Template
+- Keep core patterns stable
+- Add new features as optional
+- Maintain backward compatibility
+- Document breaking changes
+- Test with fresh installations
+
+### Contributing
+- Follow the same coding standards
+- Test changes thoroughly
+- Update documentation
+- Consider template users' needs
+- Maintain feature parity
