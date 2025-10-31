@@ -1,6 +1,6 @@
 # Development Scripts
 
-This directory contains utility scripts for managing the Coach AI development environment.
+This directory contains utility scripts for managing the development environment.
 
 ## Available Scripts
 
