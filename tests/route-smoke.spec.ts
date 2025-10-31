@@ -101,11 +101,12 @@ test.describe('Route Smoke Tests', () => {
 
   test.describe('Redirects', () => {
     test('should redirect root path to login when not authenticated', async ({ page }) => {
-      // Make sure we're signed out
-      await page.goto('/auth/signout');
+      // Make sure we're signed out - use POST request (signout route only accepts POST)
+      await page.goto('/');
+      await page.request.post('/auth/signout');
       await page.waitForLoadState('networkidle');
       
-      // Navigate to root
+      // Navigate to root again to trigger redirect
       await page.goto('/');
       await expect(page).toHaveURL('/login');
     });
@@ -129,8 +130,9 @@ test.describe('Route Smoke Tests', () => {
 
   test.describe('Route Accessibility', () => {
     test('should protect dashboard route when not authenticated', async ({ page }) => {
-      // Make sure we're signed out
-      await page.goto('/auth/signout');
+      // Make sure we're signed out - use POST request (signout route only accepts POST)
+      await page.goto('/');
+      await page.request.post('/auth/signout');
       await page.waitForLoadState('networkidle');
       
       // Try to access protected route
@@ -139,8 +141,9 @@ test.describe('Route Smoke Tests', () => {
     });
 
     test('should protect settings route when not authenticated', async ({ page }) => {
-      // Make sure we're signed out
-      await page.goto('/auth/signout');
+      // Make sure we're signed out - use POST request (signout route only accepts POST)
+      await page.goto('/');
+      await page.request.post('/auth/signout');
       await page.waitForLoadState('networkidle');
       
       // Try to access protected route
