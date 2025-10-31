@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Coach AI - Development Server Restart Script
+ * Development Server Restart Script
  * Cross-platform script to kill dev servers and restart them
  */
 
@@ -193,8 +193,8 @@ function startDevServer() {
 
 async function main() {
   try {
-    log('🔄 Coach AI - Restarting Development Servers', 'bright');
-    log('=============================================', 'bright');
+    log('🔄 Restarting Development Servers', 'bright');
+    log('===================================', 'bright');
     
     // Kill processes on common dev ports
     const ports = [3000, 3001, 8080, 8000];
